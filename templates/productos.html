@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Productos | Fútbol Total{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+
+    <h1 class="section-title text-center">{{ nombre_tienda|upper }}</h1>
+
+    <p class="text-center text-muted mb-4">
+        Catálogo de productos almacenados en la base de datos SQLite.
+    </p>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ url_for('nuevo_producto') }}" class="btn btn-success">
+            + Registrar producto
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered align-middle">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.id }}</td>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.categoria }}</td>
+                    <td>${{ "%.2f"|format(producto.precio) }}</td>
+                    <td>{{ producto.stock }}</td>
+
+                    <td>
+                        {% if producto.stock > 0 %}
+                            <span class="badge bg-success">Disponible</span>
+                        {% else %}
+                            <span class="badge bg-danger">Agotado</span>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No hay productos registrados todavía.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+</main>
+{% endblock %}

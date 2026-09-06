@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Proveedores | Fútbol Total{% endblock %}
+
+{% block content %}
+
+<main class="container py-5">
+
+    <h1 class="section-title text-center">
+        Módulo de Proveedores
+    </h1>
+
+    <p class="text-center text-muted mb-4">
+        Proveedores registrados para {{ nombre_tienda }}.
+    </p>
+
+    <div class="row g-4">
+
+        {% for proveedor in proveedores %}
+
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <h2 class="h5">
+                        {{ proveedor.empresa }}
+                    </h2>
+
+                    <p>
+                        <strong>Producto:</strong>
+                        {{ proveedor.producto }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Ciudad:</strong>
+                        {{ proveedor.ciudad }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</main>
+
+{% endblock %}

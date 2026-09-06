@@ -1,0 +1,123 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f7f6;
+    color: #263238;
+}
+
+/* Menú */
+.navbar {
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+.navbar-brand {
+    letter-spacing: 1px;
+}
+
+/* Encabezado principal */
+.hero {
+    background: linear-gradient(rgba(0, 72, 56, 0.78), rgba(0, 72, 56, 0.78)), url("../img/balones.jpg");
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 90px 0;
+}
+
+.hero img {
+    max-width: 160px;
+    background-color: white;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.hero h1 {
+    font-weight: 700;
+}
+
+/* Secciones */
+section {
+    padding: 60px 0;
+}
+
+.section-title {
+    color: #006b4f;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+
+/* Tarjetas */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+}
+
+/* Botones */
+.btn {
+    border-radius: 8px;
+}
+
+.btn-success {
+    background-color: #007f5f;
+    border-color: #007f5f;
+}
+
+.btn-success:hover {
+    background-color: #005f46;
+    border-color: #005f46;
+}
+
+/* Registro de productos */
+.registro-box {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+/* Formularios */
+.form-control,
+.form-select {
+    border-radius: 8px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #007f5f;
+    box-shadow: 0 0 0 0.2rem rgba(0, 127, 95, 0.25);
+}
+
+.is-valid {
+    border-color: #198754;
+}
+
+.is-invalid {
+    border-color: #dc3545;
+}
+
+/* Pie de página */
+footer {
+    background-color: #102820;
+    color: white;
+}
+
+/* Media query para tablets y celulares */
+@media (max-width: 768px) {
+    .hero {
+        padding: 55px 0;
+        text-align: center;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+    }
+
+    section {
+        padding: 40px 0;
+    }
+}

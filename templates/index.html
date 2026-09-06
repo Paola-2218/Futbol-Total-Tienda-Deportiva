@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}{{ nombre_tienda }} | Inicio{% endblock %}
+
+{% block content %}
+
+<header id="inicio" class="hero">
+    <div class="container">
+        <div class="row align-items-center g-4">
+
+            <div class="col-md-4 text-center">
+                <img src="{{ url_for('static', filename='img/img/logo.jpg') }}"
+                    alt="Logo Fútbol Total"
+                    class="img-fluid">
+            </div>
+
+            <div class="col-md-8">
+
+                <!-- Variable enviada desde Flask -->
+                <h1 class="display-4 fw-bold">
+                    {{ nombre_tienda|upper }}
+                </h1>
+
+                <!-- Segunda variable enviada desde Flask -->
+                <p class="lead">
+                    {{ mensaje_bienvenida }}
+                </p>
+
+                <a href="{{ url_for('productos') }}"
+                    class="btn btn-light btn-lg mt-3">
+                    Ver productos
+                </a>
+
+                <a href="#registro-productos"
+                    class="btn btn-outline-light btn-lg mt-3">
+                    Registrar producto
+                </a>
+
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<main>
+
+    <section class="container py-5">
+
+        <article class="row justify-content-center">
+
+            <div class="col-lg-9 text-center">
+
+                <h2 class="section-title">Inicio</h2>
+
+                <p>
+                    Bienvenido a
+                    <strong>{{ nombre_tienda }}</strong>,
+                    una tienda especializada en artículos deportivos
+                    para jugadores y aficionados al fútbol.
+                    Nuestro objetivo es ofrecer productos de excelente
+                    calidad para que disfrutes cada entrenamiento y
+                    cada partido con comodidad y seguridad.
+                </p>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <section id="quienes" class="bg-white py-5">
+
+        <div class="container">
+
+            <div class="row align-items-center g-4">
+
+                <div class="col-lg-6">
+
+                    <img src="{{ url_for('static', filename='img/img/tienda.jpg') }}"
+                        alt="Nuestra tienda"
+                        class="img-fluid rounded shadow">
+
+                </div>
+
+                <article class="col-lg-6">
+
+                    <h2 class="section-title">
+                        Quiénes Somos
+                    </h2>
+
+                    <p>
+                        {{ nombre_tienda }} es una tienda deportiva
+                        creada con el propósito de brindar a los amantes
+                        del fútbol una amplia variedad de productos
+                        de excelente calidad.
+                    </p>
+
+                    <p>
+                        Contamos con balones, camisetas oficiales,
+                        botines, guantes para arquero, espinilleras,
+                        mochilas deportivas y diversos accesorios.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section id="registro-productos" class="bg-light py-5">
+
+        <div class="container">
+
+            <h2 class="section-title text-center">
+                Registro de Productos
+            </h2>
+
+            <div class="row g-4">
+
+                <div class="col-lg-5">
+
+                    <form id="formProducto"
+                        class="registro-box p-4"
+                        novalidate>
+
+                        <div class="mb-3">
+
+                            <label for="nombreProducto"
+                                class="form-label">
+                                Nombre del producto
+                            </label>
+
+                            <input type="text"
+                                class="form-control"
+                                id="nombreProducto"
+                                placeholder="Ejemplo: Balón profesional">
+
+                            <div id="errorNombre"
+                                class="invalid-feedback">
+                            </div>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label for="descripcionProducto"
+                                class="form-label">
+                                Descripción
+                            </label>
+
+                            <textarea class="form-control"
+                                id="descripcionProducto"
+                                rows="3"
+                                placeholder="Ingrese una breve descripción"></textarea>
+
+                            <div id="errorDescripcion"
+                                class="invalid-feedback">
+                            </div>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label for="categoriaProducto"
+                                class="form-label">
+                                Categoría
+                            </label>
+
+                            <select class="form-control"
+                                id="categoriaProducto">
+
+                                <option value="">
+                                    Seleccione una categoría
+                                </option>
+
+                                <option value="Balones">
+                                    Balones
+                                </option>
+
+                                <option value="Botines">
+                                    Botines
+                                </option>
+
+                                <option value="Camisetas">
+                                    Camisetas
+                                </option>
+
+                                <option value="Accesorios">
+                                    Accesorios
+                                </option>
+
+                            </select>
+
+                            <div id="errorCategoria"
+                                class="invalid-feedback">
+                            </div>
+
+                        </div>
+
+
+                        <div id="mensajeValidacion"
+                            class="mb-3">
+                        </div>
+
+
+                        <button type="submit"
+                            class="btn btn-success w-100">
+                            Registrar producto
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <div class="col-lg-7">
+
+                    <div class="registro-box p-4">
+
+                        <h3 class="h5 mb-3">
+                            Productos registrados
+                        </h3>
+
+                        <p class="fw-bold">
+                            Total de registros:
+                            <span id="totalProductos">0</span>
+                        </p>
+
+                        <div id="mensajeEstadoRegistros">
+                        </div>
+
+                        <div id="listaProductos"
+                            class="row g-3">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+{% endblock %}
