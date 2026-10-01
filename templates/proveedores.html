@@ -4,50 +4,58 @@
 
 {% block content %}
 
-<main class="container py-5">
+<div class="container mt-4">
 
-    <h1 class="section-title text-center">
-        Módulo de Proveedores
-    </h1>
+    <h1 class="mb-4">Módulo de Proveedores</h1>
 
-    <p class="text-center text-muted mb-4">
-        Proveedores registrados para {{ nombre_tienda }}.
-    </p>
+    <p>Proveedores registrados para Fútbol Total.</p>
 
-    <div class="row g-4">
+    <a href="{{ url_for('nuevo_proveedor') }}" class="btn btn-primary mb-3">
+        Registrar proveedor
+    </a>
 
-        {% for proveedor in proveedores %}
+    {% if proveedores %}
 
-        <div class="col-md-4">
+    <div class="table-responsive">
 
-            <div class="card h-100 shadow-sm">
+        <table class="table table-bordered table-striped">
 
-                <div class="card-body">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                </tr>
+            </thead>
 
-                    <h2 class="h5">
-                        {{ proveedor.empresa }}
-                    </h2>
+            <tbody>
 
-                    <p>
-                        <strong>Producto:</strong>
-                        {{ proveedor.producto }}
-                    </p>
+                {% for proveedor in proveedores %}
 
-                    <p class="mb-0">
-                        <strong>Ciudad:</strong>
-                        {{ proveedor.ciudad }}
-                    </p>
+                <tr>
+                    <td>{{ proveedor[0] }}</td>
+                    <td>{{ proveedor[1] }}</td>
+                    <td>{{ proveedor[2] }}</td>
+                    <td>{{ proveedor[3] }}</td>
+                </tr>
 
-                </div>
+                {% endfor %}
 
-            </div>
+            </tbody>
 
-        </div>
-
-        {% endfor %}
+        </table>
 
     </div>
 
-</main>
+    {% else %}
+
+    <div class="alert alert-info">
+        No hay proveedores registrados todavía.
+    </div>
+
+    {% endif %}
+
+</div>
 
 {% endblock %}

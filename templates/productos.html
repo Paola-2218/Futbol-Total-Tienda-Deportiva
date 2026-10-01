@@ -3,63 +3,147 @@
 {% block title %}Productos | Fútbol Total{% endblock %}
 
 {% block content %}
+
 <main class="container py-5">
 
-    <h1 class="section-title text-center">{{ nombre_tienda|upper }}</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <p class="text-center text-muted mb-4">
-        Catálogo de productos almacenados en la base de datos SQLite.
-    </p>
+        <div>
 
-    <div class="d-flex justify-content-end mb-3">
-        <a href="{{ url_for('nuevo_producto') }}" class="btn btn-success">
-            + Registrar producto
+            <h1 class="mb-2">
+                FÚTBOL TOTAL
+            </h1>
+
+            <p class="text-muted mb-0">
+                Catálogo de productos almacenados en la base de datos PostgreSQL.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ url_for('nuevo_producto') }}"
+            class="btn btn-success"
+        >
+            Registrar producto
         </a>
+
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered align-middle">
 
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
+    {% if productos %}
 
-            <tbody>
-                {% for producto in productos %}
-                <tr>
-                    <td>{{ producto.id }}</td>
-                    <td>{{ producto.nombre }}</td>
-                    <td>{{ producto.categoria }}</td>
-                    <td>${{ "%.2f"|format(producto.precio) }}</td>
-                    <td>{{ producto.stock }}</td>
+        <div class="table-responsive">
 
-                    <td>
-                        {% if producto.stock > 0 %}
-                            <span class="badge bg-success">Disponible</span>
-                        {% else %}
-                            <span class="badge bg-danger">Agotado</span>
-                        {% endif %}
-                    </td>
-                </tr>
+            <table class="table table-bordered table-striped align-middle">
 
-                {% else %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
-                        No hay productos registrados todavía.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
+                <thead class="table-dark">
 
-        </table>
-    </div>
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Proveedor</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for producto in productos %}
+
+                        <tr>
+
+                            <td>{{ producto[0] }}</td>
+
+                            <td>{{ producto[1] }}</td>
+
+                            <td>{{ producto[2] }}</td>
+
+                            <td>
+                                ${{ "%.2f"|format(producto[3]) }}
+                            </td>
+
+                            <td>{{ producto[4] }}</td>
+
+                            <td>
+                                {{ producto[5] }}
+                            </td>
+
+                            <td>
+
+                                {% if producto[4] > 0 %}
+
+                                    <span class="badge bg-success">
+                                        Disponible
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-danger">
+                                        Agotado
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                <div class="d-flex gap-2">
+
+                                    <a
+                                        href="{{ url_for('editar_producto', id_producto=producto[0]) }}"
+                                        class="btn btn-warning btn-sm"
+                                    >
+                                        Modificar
+                                    </a>
+
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('eliminar_producto', id_producto=producto[0]) }}"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            Eliminar
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+
+            No hay productos registrados todavía.
+
+        </div>
+
+    {% endif %}
 
 </main>
+
 {% endblock %}

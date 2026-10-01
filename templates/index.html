@@ -4,251 +4,191 @@
 
 {% block content %}
 
-<header id="inicio" class="hero">
-    <div class="container">
-        <div class="row align-items-center g-4">
+<div class="container mt-4">
 
-            <div class="col-md-4 text-center">
-                <img src="{{ url_for('static', filename='img/img/logo.jpg') }}"
-                    alt="Logo Fútbol Total"
-                    class="img-fluid">
-            </div>
+    <!-- Encabezado principal -->
+    <div class="text-center mb-4">
 
-            <div class="col-md-8">
+        <h1 class="fw-bold">
+            FÚTBOL TOTAL
+        </h1>
 
-                <!-- Variable enviada desde Flask -->
-                <h1 class="display-4 fw-bold">
-                    {{ nombre_tienda|upper }}
-                </h1>
+        <p class="lead">
+            {{ mensaje_bienvenida }}
+        </p>
 
-                <!-- Segunda variable enviada desde Flask -->
-                <p class="lead">
-                    {{ mensaje_bienvenida }}
-                </p>
-
-                <a href="{{ url_for('productos') }}"
-                    class="btn btn-light btn-lg mt-3">
-                    Ver productos
-                </a>
-
-                <a href="#registro-productos"
-                    class="btn btn-outline-light btn-lg mt-3">
-                    Registrar producto
-                </a>
-
-            </div>
-        </div>
     </div>
-</header>
 
 
-<main>
+    <!-- Logo -->
+    <div class="text-center mb-5">
 
-    <section class="container py-5">
+        <img
+            src="{{ url_for('static', filename='img/logo.jpg') }}"
+            alt="Logo Fútbol Total"
+            class="img-fluid rounded"
+            style="max-width: 250px;"
+        >
 
-        <article class="row justify-content-center">
-
-            <div class="col-lg-9 text-center">
-
-                <h2 class="section-title">Inicio</h2>
-
-                <p>
-                    Bienvenido a
-                    <strong>{{ nombre_tienda }}</strong>,
-                    una tienda especializada en artículos deportivos
-                    para jugadores y aficionados al fútbol.
-                    Nuestro objetivo es ofrecer productos de excelente
-                    calidad para que disfrutes cada entrenamiento y
-                    cada partido con comodidad y seguridad.
-                </p>
-
-            </div>
-
-        </article>
-
-    </section>
+    </div>
 
 
-    <section id="quienes" class="bg-white py-5">
+    <!-- Inicio -->
+    <section class="mb-5">
 
-        <div class="container">
+        <h2 class="mb-3">Inicio</h2>
 
-            <div class="row align-items-center g-4">
+        <p>
+            Bienvenido a <strong>Fútbol Total</strong>, una tienda especializada
+            en artículos deportivos para jugadores y aficionados al fútbol.
+            Nuestro objetivo es ofrecer productos de excelente calidad para
+            que disfrutes cada entrenamiento y cada partido con comodidad y seguridad.
+        </p>
 
-                <div class="col-lg-6">
+        <div class="text-center mt-4">
 
-                    <img src="{{ url_for('static', filename='img/img/tienda.jpg') }}"
-                        alt="Nuestra tienda"
-                        class="img-fluid rounded shadow">
-
-                </div>
-
-                <article class="col-lg-6">
-
-                    <h2 class="section-title">
-                        Quiénes Somos
-                    </h2>
-
-                    <p>
-                        {{ nombre_tienda }} es una tienda deportiva
-                        creada con el propósito de brindar a los amantes
-                        del fútbol una amplia variedad de productos
-                        de excelente calidad.
-                    </p>
-
-                    <p>
-                        Contamos con balones, camisetas oficiales,
-                        botines, guantes para arquero, espinilleras,
-                        mochilas deportivas y diversos accesorios.
-                    </p>
-
-                </article>
-
-            </div>
+            <img
+                src="{{ url_for('static', filename='img/tienda.jpg') }}"
+                alt="Tienda Fútbol Total"
+                class="img-fluid rounded"
+                style="max-width: 700px;"
+            >
 
         </div>
 
     </section>
 
 
-    <section id="registro-productos" class="bg-light py-5">
+    <!-- Quiénes somos -->
+    <section class="mb-5">
 
-        <div class="container">
+        <h2 class="mb-3">Quiénes Somos</h2>
 
-            <h2 class="section-title text-center">
-                Registro de Productos
+        <p>
+            Fútbol Total es una tienda deportiva creada con el propósito de
+            brindar a los amantes del fútbol una amplia variedad de productos
+            de excelente calidad.
+        </p>
+
+        <p>
+            Contamos con balones, camisetas oficiales, botines, guantes para
+            arquero, espinilleras, mochilas deportivas y diversos accesorios
+            relacionados con el fútbol.
+        </p>
+
+    </section>
+
+
+    <!-- Productos registrados -->
+    <section class="mb-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h2>
+                Productos registrados
             </h2>
 
-            <div class="row g-4">
-
-                <div class="col-lg-5">
-
-                    <form id="formProducto"
-                        class="registro-box p-4"
-                        novalidate>
-
-                        <div class="mb-3">
-
-                            <label for="nombreProducto"
-                                class="form-label">
-                                Nombre del producto
-                            </label>
-
-                            <input type="text"
-                                class="form-control"
-                                id="nombreProducto"
-                                placeholder="Ejemplo: Balón profesional">
-
-                            <div id="errorNombre"
-                                class="invalid-feedback">
-                            </div>
-
-                        </div>
-
-
-                        <div class="mb-3">
-
-                            <label for="descripcionProducto"
-                                class="form-label">
-                                Descripción
-                            </label>
-
-                            <textarea class="form-control"
-                                id="descripcionProducto"
-                                rows="3"
-                                placeholder="Ingrese una breve descripción"></textarea>
-
-                            <div id="errorDescripcion"
-                                class="invalid-feedback">
-                            </div>
-
-                        </div>
-
-
-                        <div class="mb-3">
-
-                            <label for="categoriaProducto"
-                                class="form-label">
-                                Categoría
-                            </label>
-
-                            <select class="form-control"
-                                id="categoriaProducto">
-
-                                <option value="">
-                                    Seleccione una categoría
-                                </option>
-
-                                <option value="Balones">
-                                    Balones
-                                </option>
-
-                                <option value="Botines">
-                                    Botines
-                                </option>
-
-                                <option value="Camisetas">
-                                    Camisetas
-                                </option>
-
-                                <option value="Accesorios">
-                                    Accesorios
-                                </option>
-
-                            </select>
-
-                            <div id="errorCategoria"
-                                class="invalid-feedback">
-                            </div>
-
-                        </div>
-
-
-                        <div id="mensajeValidacion"
-                            class="mb-3">
-                        </div>
-
-
-                        <button type="submit"
-                            class="btn btn-success w-100">
-                            Registrar producto
-                        </button>
-
-                    </form>
-
-                </div>
-
-
-                <div class="col-lg-7">
-
-                    <div class="registro-box p-4">
-
-                        <h3 class="h5 mb-3">
-                            Productos registrados
-                        </h3>
-
-                        <p class="fw-bold">
-                            Total de registros:
-                            <span id="totalProductos">0</span>
-                        </p>
-
-                        <div id="mensajeEstadoRegistros">
-                        </div>
-
-                        <div id="listaProductos"
-                            class="row g-3">
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
+            <a
+                href="{{ url_for('nuevo_producto') }}"
+                class="btn btn-primary"
+            >
+                Registrar producto
+            </a>
 
         </div>
 
+
+        <p>
+            <strong>
+                Total de registros: {{ productos|length }}
+            </strong>
+        </p>
+
+
+        {% if productos %}
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-striped">
+
+                <thead class="table-dark">
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for producto in productos %}
+
+                    <tr>
+
+                        <td>
+                            {{ producto[0] }}
+                        </td>
+
+                        <td>
+                            {{ producto[1] }}
+                        </td>
+
+                        <td>
+                            {{ producto[2] }}
+                        </td>
+
+                        <td>
+                            ${{ "%.2f"|format(producto[3]) }}
+                        </td>
+
+                        <td>
+                            {{ producto[4] }}
+                        </td>
+
+                        <td>
+
+                            {% if producto[4] > 0 %}
+
+                                <span class="text-success fw-bold">
+                                    Disponible
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-danger fw-bold">
+                                    Agotado
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-info">
+            Aún no hay productos registrados.
+        </div>
+
+        {% endif %}
+
     </section>
 
-</main>
+</div>
 
 {% endblock %}

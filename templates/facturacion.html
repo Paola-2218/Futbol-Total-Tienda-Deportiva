@@ -4,28 +4,29 @@
 
 {% block content %}
 
-<main class="container py-5">
+<div class="container mt-4">
 
-    <h1 class="section-title text-center">
-        Módulo de Facturación
-    </h1>
+    <h1 class="mb-4">Módulo de Facturación</h1>
 
-    <p class="text-center text-muted mb-4">
-        Facturas registradas en {{ nombre_tienda }}.
-    </p>
+    <p>Facturas registradas en Fútbol Total.</p>
+
+    <a href="{{ url_for('nueva_factura') }}" class="btn btn-primary mb-3">
+        Registrar factura
+    </a>
+
+    {% if facturas %}
 
     <div class="table-responsive">
 
-        <table class="table table-bordered table-hover align-middle">
+        <table class="table table-bordered table-striped">
 
-            <thead class="table-success">
-
+            <thead>
                 <tr>
                     <th>Número</th>
                     <th>Cliente</th>
+                    <th>Fecha</th>
                     <th>Total</th>
                 </tr>
-
             </thead>
 
             <tbody>
@@ -33,15 +34,10 @@
                 {% for factura in facturas %}
 
                 <tr>
-
-                    <td>{{ factura.numero }}</td>
-
-                    <td>{{ factura.cliente }}</td>
-
-                    <td>
-                        ${{ "%.2f"|format(factura.total) }}
-                    </td>
-
+                    <td>{{ factura[0] }}</td>
+                    <td>{{ factura[1] }}</td>
+                    <td>{{ factura[2] }}</td>
+                    <td>${{ "%.2f"|format(factura[3]) }}</td>
                 </tr>
 
                 {% endfor %}
@@ -52,6 +48,14 @@
 
     </div>
 
-</main>
+    {% else %}
+
+    <div class="alert alert-info">
+        No hay facturas registradas todavía.
+    </div>
+
+    {% endif %}
+
+</div>
 
 {% endblock %}

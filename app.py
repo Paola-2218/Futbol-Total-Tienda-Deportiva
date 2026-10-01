@@ -1,147 +1,292 @@
-import os
-import sqlite3
-
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, flash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from psycopg.errors import UniqueViolation
 
 from forms.producto_form import ProductoForm
 from forms.cliente_form import ClienteForm
 from forms.proveedor_form import ProveedorForm
 from forms.facturacion_form import FacturacionForm
+from forms.usuario_form import UsuarioForm
+from forms.login_form import LoginForm
+
+from conexion.conexion import obtener_conexion
+from models import Usuario
 
 
 app = Flask(__name__)
 
-# Clave secreta necesaria para Flask-WTF y la protección CSRF
 app.config["SECRET_KEY"] = "clave-secreta-futbol-total-2026"
 
 
-# Datos generales del sistema
-nombre_tienda = "Fútbol Total"
-mensaje_bienvenida = "Tu tienda deportiva especializada en fútbol"
+# ============================================================
+# CONFIGURACIÓN DE LOGIN
+# ============================================================
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+login_manager.login_view = "login"
+login_manager.login_message = "Debe iniciar sesión para acceder a esta página."
+login_manager.login_message_category = "warning"
 
 
-# Ruta de la base de datos SQLite
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-DATABASE = os.path.join(DATA_DIR, "ferreteria.db")
+@login_manager.user_loader
+def load_user(id_usuario):
 
-
-# Crear la carpeta data y la tabla de productos
-def inicializar_base_datos():
-
-    os.makedirs(DATA_DIR, exist_ok=True)
-
-    conn = sqlite3.connect(DATABASE)
-
+    conn = obtener_conexion()
     cursor = conn.cursor()
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS productos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            categoria TEXT NOT NULL,
-            precio REAL NOT NULL,
-            stock INTEGER NOT NULL
-        )
-    """)
+        SELECT id_usuario, usuario, password
+        FROM usuarios
+        WHERE id_usuario = %s
+    """, (id_usuario,))
 
-    conn.commit()
+    datos = cursor.fetchone()
+
+    cursor.close()
     conn.close()
 
+    if datos is None:
+        return None
 
-# Inicializar la base de datos al iniciar la aplicación
-inicializar_base_datos()
-
-
-# Clientes de ejemplo
-clientes_demo = [
-    {
-        "nombre": "Carlos Medina",
-        "correo": "carlos@email.com",
-        "telefono": "099111222"
-    },
-    {
-        "nombre": "Ana Torres",
-        "correo": "ana@email.com",
-        "telefono": "098333444"
-    },
-    {
-        "nombre": "Luis Vargas",
-        "correo": "luis@email.com",
-        "telefono": "097555666"
-    }
-]
-
-
-# Proveedores de ejemplo
-proveedores_demo = [
-    {
-        "empresa": "Deportes Ecuador",
-        "producto": "Balones",
-        "ciudad": "Quito"
-    },
-    {
-        "empresa": "Sport Shoes",
-        "producto": "Botines",
-        "ciudad": "Guayaquil"
-    },
-    {
-        "empresa": "Uniformes Pro",
-        "producto": "Camisetas",
-        "ciudad": "Cuenca"
-    }
-]
-
-
-# Facturas de ejemplo
-facturas_demo = [
-    {
-        "numero": "F001",
-        "cliente": "Carlos Medina",
-        "total": 63.00
-    },
-    {
-        "numero": "F002",
-        "cliente": "Ana Torres",
-        "total": 35.00
-    },
-    {
-        "numero": "F003",
-        "cliente": "Luis Vargas",
-        "total": 93.00
-    }
-]
-
-
-# Página de inicio
-@app.route("/")
-def inicio():
-
-    return render_template(
-        "index.html",
-        nombre_tienda=nombre_tienda,
-        mensaje_bienvenida=mensaje_bienvenida
+    return Usuario(
+        datos[0],
+        datos[1],
+        datos[2]
     )
 
 
-# Mostrar productos desde SQLite
-@app.route("/productos")
-def productos():
+# ============================================================
+# DATOS GENERALES
+# ============================================================
 
-    conn = sqlite3.connect(DATABASE)
+nombre_tienda = "Fútbol Total"
 
-    conn.row_factory = sqlite3.Row
+mensaje_bienvenida = "Tu tienda deportiva especializada en fútbol"
 
+
+# ============================================================
+# INICIO
+# ============================================================
+
+@app.route("/")
+def inicio():
+
+    conn = obtener_conexion()
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT id, nombre, categoria, precio, stock
+        SELECT
+            id_producto,
+            nombre,
+            categoria,
+            precio,
+            stock
         FROM productos
-        ORDER BY id
+        ORDER BY id_producto
     """)
 
     productos = cursor.fetchall()
 
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "index.html",
+        nombre_tienda=nombre_tienda,
+        mensaje_bienvenida=mensaje_bienvenida,
+        productos=productos
+    )
+
+
+# ============================================================
+# REGISTRO DE USUARIOS
+# ============================================================
+
+@app.route("/registro", methods=["GET", "POST"])
+def registro():
+
+    form = UsuarioForm()
+
+    if form.validate_on_submit():
+
+        password_hash = generate_password_hash(
+            form.password.data
+        )
+
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+
+        try:
+
+            cursor.execute("""
+                INSERT INTO usuarios (usuario, password)
+                VALUES (%s, %s)
+            """, (
+                form.usuario.data,
+                password_hash
+            ))
+
+            conn.commit()
+
+            flash(
+                "Usuario registrado correctamente. Ahora puede iniciar sesión.",
+                "success"
+            )
+
+            return redirect(url_for("login"))
+
+        except UniqueViolation:
+
+            conn.rollback()
+
+            flash(
+                "El nombre de usuario ya está registrado.",
+                "danger"
+            )
+
+        finally:
+
+            cursor.close()
+            conn.close()
+
+    return render_template(
+        "registro.html",
+        form=form,
+        nombre_tienda=nombre_tienda
+    )
+
+
+# ============================================================
+# LOGIN
+# ============================================================
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if current_user.is_authenticated:
+
+        return redirect(url_for("dashboard"))
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                id_usuario,
+                usuario,
+                password
+            FROM usuarios
+            WHERE usuario = %s
+        """, (form.usuario.data,))
+
+        datos = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if datos is not None:
+
+            password_correcta = check_password_hash(
+                datos[2],
+                form.password.data
+            )
+
+            if password_correcta:
+
+                usuario = Usuario(
+                    datos[0],
+                    datos[1],
+                    datos[2]
+                )
+
+                login_user(usuario)
+
+                flash(
+                    "Inicio de sesión correcto.",
+                    "success"
+                )
+
+                return redirect(url_for("dashboard"))
+
+        flash(
+            "Usuario o contraseña incorrectos.",
+            "danger"
+        )
+
+    return render_template(
+        "login.html",
+        form=form,
+        nombre_tienda=nombre_tienda
+    )
+
+
+# ============================================================
+# DASHBOARD
+# ============================================================
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+
+    return render_template(
+        "dashboard.html",
+        nombre_tienda=nombre_tienda
+    )
+
+
+# ============================================================
+# LOGOUT
+# ============================================================
+
+@app.route("/logout")
+@login_required
+def logout():
+
+    logout_user()
+
+    flash(
+        "Sesión cerrada correctamente.",
+        "success"
+    )
+
+    return redirect(url_for("login"))
+
+
+# ============================================================
+# PRODUCTOS - LISTAR CON JOIN
+# ============================================================
+
+@app.route("/productos")
+@login_required
+def productos():
+
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            p.id_producto,
+            p.nombre,
+            p.categoria,
+            p.precio,
+            p.stock,
+            pr.nombre AS proveedor
+        FROM productos p
+        INNER JOIN proveedores pr
+            ON p.id_proveedor = pr.id_proveedor
+        ORDER BY p.id_producto
+    """)
+
+    productos = cursor.fetchall()
+
+    cursor.close()
     conn.close()
 
     return render_template(
@@ -151,30 +296,42 @@ def productos():
     )
 
 
-# Formulario para registrar productos
+# ============================================================
+# PRODUCTOS - CREAR
+# ============================================================
+
 @app.route("/productos/nuevo", methods=["GET", "POST"])
+@login_required
 def nuevo_producto():
 
     form = ProductoForm()
 
     if form.validate_on_submit():
 
-        conn = sqlite3.connect(DATABASE)
-
+        conn = obtener_conexion()
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO productos (nombre, categoria, precio, stock)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO productos
+            (
+                nombre,
+                categoria,
+                precio,
+                stock,
+                id_proveedor
+            )
+            VALUES (%s, %s, %s, %s, %s)
         """, (
             form.nombre.data,
             form.categoria.data,
             form.precio.data,
-            form.stock.data
+            form.stock.data,
+            1
         ))
 
         conn.commit()
 
+        cursor.close()
         conn.close()
 
         return redirect(url_for("productos"))
@@ -182,36 +339,182 @@ def nuevo_producto():
     return render_template(
         "formulario_producto.html",
         form=form,
-        nombre_tienda=nombre_tienda
+        nombre_tienda=nombre_tienda,
+        editar=False
     )
 
 
-# Mostrar clientes
+# ============================================================
+# PRODUCTOS - MODIFICAR
+# ============================================================
+
+@app.route("/productos/editar/<int:id_producto>", methods=["GET", "POST"])
+@login_required
+def editar_producto(id_producto):
+
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            id_producto,
+            nombre,
+            categoria,
+            precio,
+            stock
+        FROM productos
+        WHERE id_producto = %s
+    """, (id_producto,))
+
+    producto = cursor.fetchone()
+
+    if producto is None:
+
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for("productos"))
+
+    form = ProductoForm()
+
+    if form.validate_on_submit():
+
+        cursor.execute("""
+            UPDATE productos
+            SET
+                nombre = %s,
+                categoria = %s,
+                precio = %s,
+                stock = %s
+            WHERE id_producto = %s
+        """, (
+            form.nombre.data,
+            form.categoria.data,
+            form.precio.data,
+            form.stock.data,
+            id_producto
+        ))
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for("productos"))
+
+    if not form.is_submitted():
+
+        form.nombre.data = producto[1]
+        form.categoria.data = producto[2]
+        form.precio.data = producto[3]
+        form.stock.data = producto[4]
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "formulario_producto.html",
+        form=form,
+        nombre_tienda=nombre_tienda,
+        editar=True
+    )
+
+
+# ============================================================
+# PRODUCTOS - ELIMINAR
+# ============================================================
+
+@app.route("/productos/eliminar/<int:id_producto>", methods=["POST"])
+@login_required
+def eliminar_producto(id_producto):
+
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM productos WHERE id_producto = %s",
+        (id_producto,)
+    )
+
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for("productos"))
+
+
+# ============================================================
+# CLIENTES - LISTAR
+# ============================================================
+
 @app.route("/clientes")
+@login_required
 def clientes():
+
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            id_cliente,
+            nombre,
+            cedula,
+            telefono,
+            correo
+        FROM clientes
+        ORDER BY id_cliente
+    """)
+
+    clientes = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
 
     return render_template(
         "clientes.html",
-        clientes=clientes_demo,
+        clientes=clientes,
         nombre_tienda=nombre_tienda
     )
 
 
-# Formulario para registrar clientes
+# ============================================================
+# CLIENTES - CREAR
+# ============================================================
+
 @app.route("/clientes/nuevo", methods=["GET", "POST"])
+@login_required
 def nuevo_cliente():
 
     form = ClienteForm()
 
     if form.validate_on_submit():
 
-        nuevo = {
-            "nombre": form.nombre.data,
-            "correo": form.correo.data,
-            "telefono": form.telefono.data
-        }
+        conn = obtener_conexion()
+        cursor = conn.cursor()
 
-        clientes_demo.append(nuevo)
+        cursor.execute("""
+            INSERT INTO clientes
+            (
+                nombre,
+                cedula,
+                telefono,
+                correo
+            )
+            VALUES (%s, %s, %s, %s)
+        """, (
+            form.nombre.data,
+            getattr(form, "cedula", None).data
+            if hasattr(form, "cedula")
+            else None,
+            form.telefono.data,
+            form.correo.data
+        ))
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
 
         return redirect(url_for("clientes"))
 
@@ -222,32 +525,72 @@ def nuevo_cliente():
     )
 
 
-# Mostrar proveedores
+# ============================================================
+# PROVEEDORES - LISTAR
+# ============================================================
+
 @app.route("/proveedores")
+@login_required
 def proveedores():
+
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            id_proveedor,
+            nombre,
+            telefono,
+            correo
+        FROM proveedores
+        ORDER BY id_proveedor
+    """)
+
+    proveedores = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
 
     return render_template(
         "proveedores.html",
-        proveedores=proveedores_demo,
+        proveedores=proveedores,
         nombre_tienda=nombre_tienda
     )
 
 
-# Formulario para registrar proveedores
+# ============================================================
+# PROVEEDORES - CREAR
+# ============================================================
+
 @app.route("/proveedores/nuevo", methods=["GET", "POST"])
+@login_required
 def nuevo_proveedor():
 
     form = ProveedorForm()
 
     if form.validate_on_submit():
 
-        nuevo = {
-            "empresa": form.empresa.data,
-            "producto": form.producto.data,
-            "ciudad": form.ciudad.data
-        }
+        conn = obtener_conexion()
+        cursor = conn.cursor()
 
-        proveedores_demo.append(nuevo)
+        cursor.execute("""
+            INSERT INTO proveedores
+            (
+                nombre,
+                telefono,
+                correo
+            )
+            VALUES (%s, %s, %s)
+        """, (
+            form.empresa.data,
+            None,
+            None
+        ))
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
 
         return redirect(url_for("proveedores"))
 
@@ -258,32 +601,72 @@ def nuevo_proveedor():
     )
 
 
-# Mostrar facturación
+# ============================================================
+# FACTURACIÓN - LISTAR CON JOIN
+# ============================================================
+
 @app.route("/facturacion")
+@login_required
 def facturacion():
+
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            f.id_factura,
+            c.nombre AS cliente,
+            f.fecha,
+            f.total
+        FROM facturas f
+        INNER JOIN clientes c
+            ON f.id_cliente = c.id_cliente
+        ORDER BY f.id_factura
+    """)
+
+    facturas = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
 
     return render_template(
         "facturacion.html",
-        facturas=facturas_demo,
+        facturas=facturas,
         nombre_tienda=nombre_tienda
     )
 
 
-# Formulario para registrar facturas
+# ============================================================
+# FACTURACIÓN - CREAR
+# ============================================================
+
 @app.route("/facturacion/nuevo", methods=["GET", "POST"])
+@login_required
 def nueva_factura():
 
     form = FacturacionForm()
 
     if form.validate_on_submit():
 
-        nueva = {
-            "numero": form.numero.data,
-            "cliente": form.cliente.data,
-            "total": form.total.data
-        }
+        conn = obtener_conexion()
+        cursor = conn.cursor()
 
-        facturas_demo.append(nueva)
+        cursor.execute("""
+            INSERT INTO facturas
+            (
+                id_cliente,
+                total
+            )
+            VALUES (%s, %s)
+        """, (
+            1,
+            form.total.data
+        ))
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
 
         return redirect(url_for("facturacion"))
 
@@ -294,6 +677,9 @@ def nueva_factura():
     )
 
 
-# Ejecutar la aplicación
+# ============================================================
+# EJECUTAR APLICACIÓN
+# ============================================================
+
 if __name__ == "__main__":
     app.run(debug=True)

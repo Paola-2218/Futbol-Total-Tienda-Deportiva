@@ -1,18 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}Registrar producto | Fútbol Total{% endblock %}
+{% block title %}
+    {% if editar %}
+        Modificar producto | Fútbol Total
+    {% else %}
+        Registrar producto | Fútbol Total
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 
 <main class="container py-5">
 
     <h1 class="section-title text-center">
-        Registrar producto
+
+        {% if editar %}
+            Modificar producto
+        {% else %}
+            Registrar producto
+        {% endif %}
+
     </h1>
 
+
     <p class="text-center text-muted mb-4">
-        Complete los datos del nuevo producto.
+
+        {% if editar %}
+            Modifique los datos del producto seleccionado.
+        {% else %}
+            Complete los datos del nuevo producto.
+        {% endif %}
+
     </p>
+
 
     <div class="row justify-content-center">
 
@@ -26,6 +46,9 @@
 
                         {{ form.hidden_tag() }}
 
+
+                        <!-- Nombre -->
+
                         <div class="mb-3">
 
                             {{ form.nombre.label(class="form-label") }}
@@ -36,13 +59,17 @@
                             ) }}
 
                             {% for error in form.nombre.errors %}
+
                                 <div class="text-danger small mt-1">
                                     {{ error }}
                                 </div>
+
                             {% endfor %}
 
                         </div>
 
+
+                        <!-- Descripción -->
 
                         <div class="mb-3">
 
@@ -55,13 +82,17 @@
                             ) }}
 
                             {% for error in form.descripcion.errors %}
+
                                 <div class="text-danger small mt-1">
                                     {{ error }}
                                 </div>
+
                             {% endfor %}
 
                         </div>
 
+
+                        <!-- Categoría -->
 
                         <div class="mb-3">
 
@@ -70,13 +101,17 @@
                             {{ form.categoria(class="form-select") }}
 
                             {% for error in form.categoria.errors %}
+
                                 <div class="text-danger small mt-1">
                                     {{ error }}
                                 </div>
+
                             {% endfor %}
 
                         </div>
 
+
+                        <!-- Precio -->
 
                         <div class="mb-3">
 
@@ -88,13 +123,17 @@
                             ) }}
 
                             {% for error in form.precio.errors %}
+
                                 <div class="text-danger small mt-1">
                                     {{ error }}
                                 </div>
+
                             {% endfor %}
 
                         </div>
 
+
+                        <!-- Stock -->
 
                         <div class="mb-3">
 
@@ -106,17 +145,36 @@
                             ) }}
 
                             {% for error in form.stock.errors %}
+
                                 <div class="text-danger small mt-1">
                                     {{ error }}
                                 </div>
+
                             {% endfor %}
 
                         </div>
 
 
+                        <!-- Botones -->
+
                         <div class="d-flex gap-2">
 
-                            {{ form.submit(class="btn btn-success") }}
+                            {% if editar %}
+
+                                {{ form.submit(
+                                    value="Guardar cambios",
+                                    class="btn btn-warning"
+                                ) }}
+
+                            {% else %}
+
+                                {{ form.submit(
+                                    value="Registrar producto",
+                                    class="btn btn-success"
+                                ) }}
+
+                            {% endif %}
+
 
                             <a
                                 href="{{ url_for('productos') }}"
@@ -126,6 +184,7 @@
                             </a>
 
                         </div>
+
 
                     </form>
 
