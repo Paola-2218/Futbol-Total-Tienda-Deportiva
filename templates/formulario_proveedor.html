@@ -1,17 +1,35 @@
 {% extends "base.html" %}
 
-{% block title %}Registrar proveedor | Fútbol Total{% endblock %}
+{% block title %}
+    {% if editar %}
+        Modificar proveedor | Fútbol Total
+    {% else %}
+        Registrar proveedor | Fútbol Total
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 
 <main class="container py-5">
 
     <h1 class="section-title text-center">
-        Registrar proveedor
+
+        {% if editar %}
+            Modificar proveedor
+        {% else %}
+            Registrar proveedor
+        {% endif %}
+
     </h1>
 
     <p class="text-center text-muted mb-4">
-        Complete los datos del nuevo proveedor.
+
+        {% if editar %}
+            Modifique los datos del proveedor.
+        {% else %}
+            Complete los datos del nuevo proveedor.
+        {% endif %}
+
     </p>
 
     <div class="row justify-content-center">
@@ -28,17 +46,19 @@
 
                         <div class="mb-3">
 
-                            {{ form.empresa.label(class="form-label") }}
+                            {{ form.nombre.label(class="form-label") }}
 
-                            {{ form.empresa(
+                            {{ form.nombre(
                                 class="form-control",
                                 placeholder="Ejemplo: Deportes Ecuador"
                             ) }}
 
-                            {% for error in form.empresa.errors %}
+                            {% for error in form.nombre.errors %}
+
                                 <div class="text-danger small mt-1">
                                     {{ error }}
                                 </div>
+
                             {% endfor %}
 
                         </div>
@@ -46,17 +66,19 @@
 
                         <div class="mb-3">
 
-                            {{ form.producto.label(class="form-label") }}
+                            {{ form.telefono.label(class="form-label") }}
 
-                            {{ form.producto(
+                            {{ form.telefono(
                                 class="form-control",
-                                placeholder="Ejemplo: Balones"
+                                placeholder="Ejemplo: 0991234567"
                             ) }}
 
-                            {% for error in form.producto.errors %}
+                            {% for error in form.telefono.errors %}
+
                                 <div class="text-danger small mt-1">
                                     {{ error }}
                                 </div>
+
                             {% endfor %}
 
                         </div>
@@ -64,17 +86,19 @@
 
                         <div class="mb-3">
 
-                            {{ form.ciudad.label(class="form-label") }}
+                            {{ form.correo.label(class="form-label") }}
 
-                            {{ form.ciudad(
+                            {{ form.correo(
                                 class="form-control",
-                                placeholder="Ejemplo: Quito"
+                                placeholder="Ejemplo: proveedor@email.com"
                             ) }}
 
-                            {% for error in form.ciudad.errors %}
+                            {% for error in form.correo.errors %}
+
                                 <div class="text-danger small mt-1">
                                     {{ error }}
                                 </div>
+
                             {% endfor %}
 
                         </div>
@@ -82,7 +106,21 @@
 
                         <div class="d-flex gap-2">
 
-                            {{ form.submit(class="btn btn-success") }}
+                            {% if editar %}
+
+                                {{ form.submit(
+                                    value="Guardar cambios",
+                                    class="btn btn-warning"
+                                ) }}
+
+                            {% else %}
+
+                                {{ form.submit(
+                                    class="btn btn-success"
+                                ) }}
+
+                            {% endif %}
+
 
                             <a
                                 href="{{ url_for('proveedores') }}"

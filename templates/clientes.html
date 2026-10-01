@@ -18,16 +18,19 @@
 
     <div class="table-responsive">
 
-        <table class="table table-bordered table-striped">
+        <table class="table table-bordered table-striped align-middle">
 
-            <thead>
+            <thead class="table-dark">
+
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Cédula</th>
                     <th>Correo</th>
                     <th>Teléfono</th>
+                    <th>Acciones</th>
                 </tr>
+
             </thead>
 
             <tbody>
@@ -35,11 +38,39 @@
                 {% for cliente in clientes %}
 
                 <tr>
+
                     <td>{{ cliente[0] }}</td>
                     <td>{{ cliente[1] }}</td>
                     <td>{{ cliente[2] }}</td>
                     <td>{{ cliente[4] }}</td>
                     <td>{{ cliente[3] }}</td>
+
+                    <td>
+
+                        <a
+                            href="{{ url_for('editar_cliente', id_cliente=cliente[0]) }}"
+                            class="btn btn-warning btn-sm"
+                        >
+                            Modificar
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('eliminar_cliente', id_cliente=cliente[0]) }}"
+                            style="display: inline;"
+                        >
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger btn-sm"
+                            >
+                                Eliminar
+                            </button>
+
+                        </form>
+
+                    </td>
+
                 </tr>
 
                 {% endfor %}
